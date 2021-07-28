@@ -2,6 +2,8 @@ import csv
 import tweepy as tw
 import os
 import pickle
+import threading
+from tqdm import tqdm
 from dotenv import load_dotenv
 
 
@@ -49,12 +51,10 @@ def CollectData(file_name, api, api_name, num_items, start, end):
         try:
 
             # Iterate through followers of actor
-            print("ACTOR: ", actor)
             for follower in tw.Cursor(api.followers, actor_name).items(num_items):
                 follower_name = follower.screen_name
 
                 # If follower is already in dict, append the actor
-                print("\tFOLLOWER:", follower_name)
                 if follower_name in followers:
                     followers[follower_name]['follows'].append(actor_name)
 
@@ -62,7 +62,6 @@ def CollectData(file_name, api, api_name, num_items, start, end):
                 else:
                     followers[follower_name] = filterUserData(follower, actor_name)
 
-            print("\tDUMPING...")
             with open('../Data/Follower data dump/{0}-{1}-{2}.pkl'.format(i, api_name, actor_name), 'wb') as write_file:
                 pickle.dump(followers, write_file, pickle.HIGHEST_PROTOCOL)
 
@@ -90,4 +89,11 @@ if __name__ == '__main__':
     USER_LIMIT = 900
     APP_LIMIT = 300
 
-    CollectData('../Data/master_set.csv', api1, 1, 5, 0, 2)
+    # Create threads for each API
+    # NOTE: Important to ensure that the start/end sections DO NOT overlap
+    t1 = threading.Thread(target=CollectData, args=('../Data/master_set.csv', api1, 1, 100, 0, 211))
+    t2 = threading.Thread(target=CollectData, args=('../Data/master_set.csv', api2, 2, 100, 211, 422))
+    t3 = threading.Thread(target=CollectData, args=('../Data/master_set.csv', api3, 3, 100, 422, 631))
+    t1.start()
+    t2.start()
+    t3.start()
