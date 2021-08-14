@@ -1,3 +1,5 @@
 .env
 .idea
 \Old files\
+*.pkl
+KEYS.json

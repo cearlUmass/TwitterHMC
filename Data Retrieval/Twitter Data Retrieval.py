@@ -1,13 +1,12 @@
 import csv
 import tweepy as tw
-import os
 import pickle
 import threading
-from tqdm import tqdm
-from dotenv import load_dotenv
+import json
+from typing import Optional
 
 
-def filterUserData(unfiltered_data, actor_name):
+def filter_user_data(unfiltered_data, actor_name) -> dict:
     user_fields = [
         'screen_name',
         'id',
@@ -35,7 +34,15 @@ def filterUserData(unfiltered_data, actor_name):
     return filtered_data
 
 
-def CollectData(file_name, api, api_name, num_items, start, end):
+def collect_data(
+    file_name: str,
+    api: tw.API,
+    api_name: Optional[str],
+    num_items: int,
+    start: Optional[int] = 0,
+    end: Optional[int] = -1
+) -> None:
+
     # Retrieve list of political actors
     with open(file_name, 'r') as csvfile:
         reader = csv.reader(csvfile)
@@ -60,40 +67,73 @@ def CollectData(file_name, api, api_name, num_items, start, end):
 
                 # Otherwise add follower data to dict
                 else:
-                    followers[follower_name] = filterUserData(follower, actor_name)
+                    followers[follower_name] = filter_user_data(follower, actor_name)
 
-            with open('../Data/Follower data dump/{0}-{1}-{2}.pkl'.format(i, api_name, actor_name), 'wb') as write_file:
+            with open('../Data/Follower data dump/{0}-{1}-{2}.pkl'.format(api_name, i, actor_name), 'wb') as write_file:
                 pickle.dump(followers, write_file, pickle.HIGHEST_PROTOCOL)
 
         except tw.error.TweepError as e:
-            print("ERROR RETRIEVING ACTOR:", e, "\nACCOUNT:", actor_name)
+            print("ERROR RETRIEVING ACTOR:", e, "\nACCOUNT:", actor_name, "API:", api_name)
 
 
 if __name__ == '__main__':
-    # CONSTANTS
-    load_dotenv()
-    auth1 = tw.OAuthHandler(os.getenv('CONSUMER_KEY_ONE'), os.getenv('CONSUMER_SECRET_ONE'))
-    auth1.set_access_token(os.getenv('ACCESS_TOKEN_ONE'), os.getenv('ACCESS_TOKEN_SECRET_ONE'))
-    api1 = tw.API(auth1, wait_on_rate_limit=True)
 
-    auth2 = tw.OAuthHandler(os.getenv('CONSUMER_KEY_TWO'), os.getenv('CONSUMER_SECRET_TWO'))
-    auth2.set_access_token(os.getenv('ACCESS_TOKEN_TWO'), os.getenv('ACCESS_TOKEN_SECRET_TWO'))
-    api2 = tw.API(auth2, wait_on_rate_limit=True)
+    # Load API's & threads
+    with open("../KEYS.json", "rb") as secrets:
 
-    auth3 = tw.OAuthHandler(os.getenv('CONSUMER_KEY_THREE'), os.getenv('CONSUMER_SECRET_THREE'))
-    auth3.set_access_token(os.getenv('ACCESS_TOKEN_THREE'), os.getenv('ACCESS_TOKEN_SECRET_THREE'))
-    api3 = tw.API(auth3, wait_on_rate_limit=True)
+        # Load secrets
+        keys = json.load(secrets)
+        num_apps = len(keys['Consumer Keys'])
+        CK = keys['Consumer Keys']
+        CS = keys['Consumer Secrets']
+        AT = keys['Access Tokens']
+        AS = keys['Access Secrets']
 
-    APIS = [api1, api2, api3]
-    FOLLOWERS_PER_ACTOR = 900
-    USER_LIMIT = 900
-    APP_LIMIT = 300
+        # Assertions
+        assert all([(len(keys[k]) == num_apps) for k in keys]), "Un-equal number of tokens"
+        assert all((len(i) == 25) for i in CK), "A Consumer Key is wrong"
+        assert all((len(i) == 50) for i in CS), "A Consumer Secret is wrong"
+        assert all((len(i) == 50) for i in AT), "An Access Token is wrong"
+        assert all((len(i) == 45) for i in AS), "An Access Secret is wrong"
 
-    # Create threads for each API
-    # NOTE: Important to ensure that the start/end sections DO NOT overlap
-    t1 = threading.Thread(target=CollectData, args=('../Data/master_set.csv', api1, 1, 100, 0, 211))
-    t2 = threading.Thread(target=CollectData, args=('../Data/master_set.csv', api2, 2, 100, 211, 422))
-    t3 = threading.Thread(target=CollectData, args=('../Data/master_set.csv', api3, 3, 100, 422, 631))
-    t1.start()
-    t2.start()
-    t3.start()
+    # Calculate even division of work
+    with open('../Data/master_set.csv', 'r') as actors_file:
+        reader = csv.reader(actors_file)
+        actors = list(reader)
+        total_actors = len(actors)
+        actors_per_app = int(total_actors / num_apps)
+        ranges = [(i * actors_per_app, (i+1) * actors_per_app) for i in range(num_apps)]
+
+        # Dealing with remainders
+        r = total_actors % num_apps
+        if r != 0:
+            ranges[-r:] = [(ranges[-r+i][0]+1+i, ranges[-r+i][1]+1+i) for i in range(r)]
+
+
+    # Create API's & threads
+    threads = []
+    for i in range(num_apps):
+
+        # Authorize
+        auth = tw.OAuthHandler(CK[i], CS[i])
+        auth.set_access_token(AT[i], AS[i])
+        api = tw.API(auth, wait_on_rate_limit=True)
+
+        # Thread
+        thread = threading.Thread(
+            target=collect_data,
+            args=(
+                  '../Data/master_set.csv',     # File name
+                  api,                          # API
+                  i,                            # API name
+                  "api{0}".format(1),           # Number of retrievals (Edit this to change # retrieved)
+                  ranges[i][0],                 # Starting index
+                  ranges[i][1]                  # Ending index
+                )
+        )
+        threads.append(thread)
+
+    # Start threads
+    # Note: output format is: (api_name)-(api_index)-(actor_name).pkl
+    for thread in threads:
+        thread.start()
