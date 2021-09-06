@@ -57,6 +57,7 @@ def collect_data(
 
         try:
 
+            # TODO: Try dynamic sampling (dynamically change num_iters according to actor)
             # Iterate through followers of actor
             for follower in tw.Cursor(api.followers, actor_name).items(num_items):
                 follower_name = follower.screen_name
@@ -102,12 +103,12 @@ if __name__ == '__main__':
         actors = list(reader)
         total_actors = len(actors)
         actors_per_app = int(total_actors / num_apps)
-        ranges = [(i * actors_per_app, (i+1) * actors_per_app) for i in range(num_apps)]
+        ranges = [[i * actors_per_app, (i+1) * actors_per_app] for i in range(num_apps)]
 
         # Dealing with remainders
         r = total_actors % num_apps
         if r != 0:
-            ranges[-r:] = [(ranges[-r+i][0]+1+i, ranges[-r+i][1]+1+i) for i in range(r)]
+            ranges[-r:] = [[ranges[-r+i][0]+i, ranges[-r+i][1]+1+i] for i in range(r)]
 
 
     # Create API's & threads
@@ -123,10 +124,10 @@ if __name__ == '__main__':
         thread = threading.Thread(
             target=collect_data,
             args=(
-                  '../Data/master_set.csv',     # File name
+                  '../Data/master_set.csv',     # Actors file name
                   api,                          # API
-                  i,                            # API name
-                  "api{0}".format(1),           # Number of retrievals (Edit this to change # retrieved)
+                  "api{0}".format(i),           # API name
+                  9500,                         # Number of retrievals
                   ranges[i][0],                 # Starting index
                   ranges[i][1]                  # Ending index
                 )
