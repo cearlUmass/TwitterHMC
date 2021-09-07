@@ -40,5 +40,5 @@ if __name__ == '__main__':
 
     print("Total followers retrieved:", total_collected)
     print("Size of Set of Followers:", len(master_dict))
-    with open('../Data/Master follower set/master_follower_set.pkl', 'wb') as max_file:
+    with open('../Data/Master sets/master_follower_set.pkl', 'wb') as max_file:
         pickle.dump(master_dict, max_file, pickle.HIGHEST_PROTOCOL)

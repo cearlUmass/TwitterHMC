@@ -1,0 +1,6 @@
+:: Compiler ::
+(Compile dumped data into single file)
+-   Total followers retrieved: 4414458
+    Size of Set of Followers: 2609910
+
+:: Refiner ::
