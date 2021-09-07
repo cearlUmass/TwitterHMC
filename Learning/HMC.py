@@ -10,6 +10,9 @@ tfd = tfp.distributions
 
 if __name__ == '__main__':
 
+    ### Retrieve Data ###
+    follower_data = pickle.load(open('../Data/Refined sets/refined master follower set.pkl', 'wb'))
+
     # Initializations for chain
     beta = [data['friends_count'] for user, data in follower_data.items()]
     alpha = [np.log(float(data[0])) for data in actor_data.values()]

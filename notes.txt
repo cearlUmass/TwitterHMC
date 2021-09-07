@@ -4,3 +4,5 @@
     Size of Set of Followers: 2609910
 
 :: Refiner ::
+(Filtered follower data)
+- Refined set of followers: 169795

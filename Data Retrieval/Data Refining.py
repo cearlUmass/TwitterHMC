@@ -5,9 +5,6 @@ import numpy as np
 # List of political actors twitter handles
 pol_actors = np.array(list(csv.reader(open('../Data/congress_actors.csv'))))[:, 4]
 
-# Meta information about followers
-refined_non_political_followers = 0
-
 
 # Conditions for follower to be considered in the model
 def is_viable(follower) -> bool:
@@ -42,7 +39,7 @@ def is_viable(follower) -> bool:
 if __name__ == '__main__':
 
     ### Load Data ###
-    follower_data_raw = pickle.load(open('../Data/Master sets/master_follower_set.pkl', 'rb'))
+    follower_data_raw = pickle.load(open('../Data/Master sets/master follower set.pkl', 'rb'))
     actor_data = pickle.load(open('../Data/Master sets/master actor set.pkl', 'rb'))
 
     ### Filter data ###
@@ -51,5 +48,7 @@ if __name__ == '__main__':
         if is_viable(data):
             follower_data[follower_name] = data
 
-    with open('../Data/Refined sets/refined master set.pkl', 'wb') as refined_file:
+    print("Refined set of followers:", len(follower_data))
+
+    with open('../Data/Refined sets/refined master follower set.pkl', 'wb') as refined_file:
         pickle.dump(follower_data, refined_file, pickle.HIGHEST_PROTOCOL)

@@ -29,16 +29,24 @@ if __name__ == '__main__':
     file_index = -1
     total_collected = 0
     for api_num in range(NUM_OF_APIS):
+
+        # Determine which file to compile
         file_num = ranges[api_num][1] - ranges[api_num][0] - 1
         actor = actors[file_num + file_index + 1]
         file_index += file_num+1
         loc = '../Data/Follower data dump/api{0}-{1}-{2}.pkl'.format(api_num, file_num, actor[0])
+
+        # Merge with master set
         with open(loc, 'rb') as max_data_file:
             data = pickle.load(max_data_file)
             total_collected += len(data)
-            master_dict.update(data)
+            for k, v in data.items():
+                if k in master_dict:
+                    master_dict[k]['follows'].extend(v['follows'])
+                else:
+                    master_dict[k] = v
 
     print("Total followers retrieved:", total_collected)
     print("Size of Set of Followers:", len(master_dict))
-    with open('../Data/Master sets/master_follower_set.pkl', 'wb') as max_file:
+    with open('../Data/Master sets/master follower set.pkl', 'wb') as max_file:
         pickle.dump(master_dict, max_file, pickle.HIGHEST_PROTOCOL)
