@@ -3,7 +3,7 @@ import csv
 import numpy as np
 
 # List of political actors twitter handles
-pol_actors = np.array(list(csv.reader(open('../Data/congress_actors.csv'))))[:, 4]
+pol_actors = np.array(list(csv.reader(open(''))))[:, 4]
 
 
 # Conditions for follower to be considered in the model

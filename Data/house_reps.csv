@@ -167,7 +167,6 @@
 "Harris, Andy",@RepAndyHarrisMD,MD,R
 "Harshbarger, Diana",@RepHarshbarger,TN,R
 "Hartzler, Vicky",@RepHartzler,MO,R
-"Hastings, Alcee L.",@RepHastingsFL,FL,D
 "Hayes, Jahana",@RepJahanaHayes,CT,D
 "Hern, Kevin",@repkevinhern,OK,R
 "Herrell, Yvette",@RepHerrell,NM,R
@@ -201,7 +200,7 @@
 "Jordan, Jim",@Jim_Jordan,OH,R
 "Joyce, Dave",@RepDaveJoyce,OH,R
 "Joyce, John",@RepJohnJoyce,PA,R
-"Kahele, Kaiali'i",@KaheleRep,HI,D
+"Kahele, Kaiali'i",@RepKahele,HI,D
 "Kaptur, Marcy",@RepMarcyKaptur,OH,D
 "Katko, John",@RepJohnKatko,NY,R
 "Keating, Bill",@USRepKeating,MA,D
@@ -326,7 +325,7 @@
 "Quigley, Mike",@RepMikeQuigley,IL,D
 "Radewagen, Amata",@RepAmata,AS,R
 "Raskin, Jamie",@RepRaskin,MD,D
-"Reed, Tom",@RepTomReed,NY,R
+"Reed, Tom",@TomReedCongress,NY,R
 "Reschenthaler, Guy",@GReschenthaler,PA,R
 "Rice, Kathleen",@RepKathleenRice,NY,D
 "Rice, Tom",@RepTomRice,SC,R

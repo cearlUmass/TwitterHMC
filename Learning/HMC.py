@@ -11,9 +11,10 @@ tfd = tfp.distributions
 if __name__ == '__main__':
 
     ### Retrieve Data ###
-    follower_data = pickle.load(open('../Data/Refined sets/refined master follower set.pkl', 'wb'))
+    follower_data = pickle.load(open('../Data/Refined sets/refined master follower set.pkl', 'rb'))
+    actor_data = pickle.load(open('../Data/Master sets/master actor set.pkl', 'rb'))
 
-    # Initializations for chain
+    ### Initializations Model Parameters ###
     beta = [data['friends_count'] for user, data in follower_data.items()]
     alpha = [np.log(float(data[0])) for data in actor_data.values()]
     theta = tfd.Normal(loc=tf.zeros_like(beta, dtype=np.float32),

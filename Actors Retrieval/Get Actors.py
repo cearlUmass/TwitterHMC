@@ -105,7 +105,7 @@ def check_actors_existence():
 
     with open("../Data/T100_actors.csv", 'r') as T500_data, \
          open("../Data/senators.csv", 'r') as senator_data, \
-         open("../Data/house_reps.csv") as rep_data:
+         open("../Data/house_reps.csv", 'r') as rep_data:
         reader1 = csv.reader(T500_data)
         reader2 = csv.reader(senator_data)
         reader3 = csv.reader(rep_data)
